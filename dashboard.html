@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Channel Name Availability Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; }
+.header { background: linear-gradient(135deg, #e0f2fe, #f0f4f8); padding: 24px 32px; border-bottom: 1px solid #d1d5db; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; color: #1e293b; }
+.header h1 span { color: #0284c7; }
+.stats { display: flex; gap: 20px; flex-wrap: wrap; }
+.stat { background: #ffffff; border-radius: 10px; padding: 12px 18px; text-align: center; min-width: 80px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.stat .num { font-size: 1.5rem; font-weight: 800; color: #0284c7; }
+.stat .lbl { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 16px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 2px solid #d1d5db; }
+.tab { padding: 10px 28px; cursor: pointer; border: none; background: transparent; color: #64748b; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
+.tab.active { color: #0284c7; border-bottom: 3px solid #0284c7; margin-bottom: -2px; }
+.tab:hover { color: #1e293b; }
+
+/* Filters */
+.filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+.filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.filter-btn:hover { border-color: #0284c7; color: #0284c7; }
+.filter-btn.active { background: #0284c7; color: #ffffff; border-color: #0284c7; font-weight: 700; }
+.search-box { margin-left: auto; padding: 6px 14px; border-radius: 20px; border: 1px solid #cbd5e1; background: #ffffff; color: #1e293b; font-size: 0.85rem; width: 200px; outline: none; }
+.search-box:focus { border-color: #0284c7; }
+.row-count { color: #64748b; font-size: 0.8rem; margin-bottom: 8px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #d1d5db; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th { background: #f8fafc; padding: 12px 16px; text-align: left; font-weight: 700; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
+th:nth-child(1) { width: 30%; }
+td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+tr:hover { background: #f8fafc; }
+.name-cell { font-weight: 600; color: #1e293b; font-size: 0.95rem; white-space: nowrap; }
+
+/* Per-cell status styling */
+.cell { text-align: center; font-size: 1.4rem; font-weight: 900; }
+.cell-available { background: #bfdbfe; color: #1e40af; }
+.cell-taken { background: #e5e7eb; color: #6b7280; }
+.cell-pending { background: #f3f4f6; color: #9ca3af; }
+
+/* Action button */
+.action-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; border: 1px solid #d1d5db; background: #ffffff; color: #6b7280; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+.action-btn:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+.action-btn.restore:hover { background: #dbeafe; border-color: #93c5fd; color: #2563eb; }
+.action-col { text-align: center; width: 60px; }
+
+/* Empty state */
+.empty { text-align: center; padding: 60px; color: #64748b; font-size: 1.1rem; }
+
+/* Footer */
+.footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid #e2e8f0; margin-top: 40px; }
+
+@media(max-width:768px) {
+    .filters { gap: 6px; }
+    .filter-btn { padding: 4px 10px; font-size: 0.75rem; }
+    .search-box { width: 140px; }
+    .header { padding: 16px; }
+    .header h1 { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>📡 <span>Channel Name</span> Availability</h1>
+    <div class="stats">
+        <div class="stat"><div class="num">406</div><div class="lbl">Total</div></div>
+        <div class="stat"><div class="num">182</div><div class="lbl">YT Avail</div></div>
+        <div class="stat"><div class="num">32</div><div class="lbl">IG Avail</div></div>
+        <div class="stat"><div class="num">30</div><div class="lbl">FB Avail</div></div>
+        <div class="stat"><div class="num">185</div><div class="lbl">Any Avail</div></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab active" data-tab="any" onclick="switchTab('any')">✅ At Least 1 Available</button>
+        <button class="tab" data-tab="allgone" onclick="switchTab('allgone')">❌ All 3 Unavailable</button>
+        <button class="tab" data-tab="saved" onclick="switchTab('saved')">📋 Saved (<span id="saved-count">0</span>)</button>
+    </div>
+
+    <div class="filters">
+        <span style="color:#94a3b8;font-size:0.8rem;margin-right:4px;">Filter:</span>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" data-filter="youtube" onclick="setFilter('youtube')">📺 YT Avail</button>
+        <button class="filter-btn" data-filter="instagram" onclick="setFilter('instagram')">📷 IG Avail</button>
+        <button class="filter-btn" data-filter="facebook" onclick="setFilter('facebook')">📘 FB Avail</button>
+        <input type="text" class="search-box" placeholder="🔍 Search name..." oninput="renderTable()" id="search">
+    </div>
+
+    <div class="row-count" id="row-count"></div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Channel Name</th>
+                    <th style="text-align:center">📺 YouTube</th>
+                    <th style="text-align:center">📷 Instagram</th>
+                    <th style="text-align:center">📘 Facebook</th>
+                    <th style="text-align:center;width:60px">Action</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+    <div class="footer">AI-Tech Channel Name Search • India 🇮🇳 • 406 names • Static Dashboard (no server needed)</div>
+</div>
+
+<script>
+// ===== EMBEDDED DATA =====
+var ALL_DATA = [{"name":"AIBerg","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AIBroBot","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AIBrothers","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AICodeCraftsman","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AIFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AINagar","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AIPort","youtube":"available","instagram":"available","facebook":"available"},{"name":"AIPuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AIVibes","youtube":"available","instagram":"available","facebook":"available"},{"name":"AIWithBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AIWithRizz","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AIWithTheCoder","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AbsoluteAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiAdvantageIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AiBlueprint","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiCatalyst","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiChronicle","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiDecoded","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiFrontierIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AiGenesisIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AiHorizon","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiLabsIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiPulseIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiShastra","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AiSpectrumIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AiTribeIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AiYugIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AlgoBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AlgoNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AlgoPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AllThingsAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"AppFord","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"AppNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ArchitectAIWithMe","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ArchitectOfCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BasedAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BasedCoder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BasedDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BeyondAI","youtube":"taken","instagram":"available","facebook":"taken"},{"name":"BigPictureAI","youtube":"available","instagram":"available","facebook":"available"},{"name":"BitNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BitPuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BlueprintsForAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BoldAI","youtube":"available","instagram":"available","facebook":"available"},{"name":"BotBro","youtube":"taken","instagram":"available","facebook":"available"},{"name":"BotNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BotPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BrightAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroBuilds","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroBytes","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroCode","youtube":"taken","instagram":"available","facebook":"available"},{"name":"BroCodes","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroCoding","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroExplains","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroLearnsAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BroStack","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroTeachesCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BroTech","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroTechTalks","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroTechie","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BroadAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"Brogrammer","youtube":"available","instagram":"available","facebook":"available"},{"name":"BrogrammerAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BrotopiaTech","youtube":"available","instagram":"available","facebook":"available"},{"name":"BrototypeAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BuildBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BuildWithBro","youtube":"available","instagram":"available","facebook":"available"},{"name":"BuildWithTheCoder","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BuilderOfAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BussinAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"BussinCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ByteBharat","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ByteBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ByteBroIndia","youtube":"available","instagram":"available","facebook":"available"},{"name":"ByteFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ByteLogicIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ByteNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"BytePort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CODEwithINDIA","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CleanAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ClearAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CloudFord","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CloudNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CloudPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeBerg","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeBroIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeBros","youtube":"available","instagram":"available","facebook":"available"},{"name":"CodeCanvasAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeCrafted","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeCraftsman","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeMindIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CodeNagar","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeOhMyCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CodePort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodePuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CodeRizz","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeSculptor","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeToInspire","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeVibes","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeVidyAi","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CodeWithBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CodeWithTheDev","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CoderAndArchitect","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CodingBlueprints","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CogniTechIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"CogniVeda","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CompactAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CraftingAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CrispAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CyberFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CyberNagar","youtube":"available","instagram":"taken","facebook":"available"},{"name":"CyberPet","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"CyberPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DataBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DataFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DataNagar","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DataPet","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DataPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DataPuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DataRootIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DebugBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DebugWithBro","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DeepAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DeepCoderAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DeepLearnIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DenseAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DesignAndCodeAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DevBro","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DevBroIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DevFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DevNagar","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DevPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DigiFord","youtube":"available","instagram":"available","facebook":"available"},{"name":"DigiNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DigiPet","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DigiPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DigiPuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DigitalBrook","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DigitalFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DigitalNagar","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DigitalPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"DigitalRaga","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DopeAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"DopeCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"EliteAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"EverydayAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"FirstPrinciplesAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"FlexAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"FlexCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"FlexTheCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ForeverAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ForwardAI","youtube":"available","instagram":"available","facebook":"available"},{"name":"FreshAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"FutureAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"FutureProofAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"GeekBro","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"GoatedAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"GoatedCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"GoatedDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"GoogleIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"HackBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"HeyBroCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"HustleBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"HyperAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"IndAiLabs","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"IndusNeuron","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"InfiniteAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"InfoFord","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"InfoNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"InfoPet","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"InfoPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"InfoPuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JustAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JustArchitect","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JustBuildAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JustCodeAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JustCodeIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JustCoder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JustCoding","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JustDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JustIndianTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JustLearnAI","youtube":"available","instagram":"available","facebook":"taken"},{"name":"JustTech","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JustTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JuzAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JuzBuild","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JuzCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"JuzCoding","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JuzDev","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JuzIndianAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"JuzTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LeanAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsArchitect","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsBuildAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsBuildIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsCodeAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsCoder","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LetsCoding","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsLearnAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetsTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LetsTechieAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LetsTechieIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LetzAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetzBuild","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetzCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"LetzCoding","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LetzDev","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LetzTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"LitAI","youtube":"available","instagram":"available","facebook":"available"},{"name":"LitCode","youtube":"available","instagram":"available","facebook":"available"},{"name":"LitTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"MakerBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"MakerMindAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"MetaMindIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"MindBharatAi","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"MinimalAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NakedAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NerdBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NetFord","youtube":"available","instagram":"available","facebook":"available"},{"name":"NetNagar","youtube":"available","instagram":"available","facebook":"available"},{"name":"NetPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NeuralBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NeuralBuilder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NeuralDrishti","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"NeuralNagar","youtube":"available","instagram":"available","facebook":"available"},{"name":"NeuralNation","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"NeuralPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NextAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NextGenAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NextGenAiIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"NoCapAI","youtube":"available","instagram":"available","facebook":"available"},{"name":"NoCapCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NoCapTech","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"NoFluffAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NobleAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"NodeNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"NodePort","youtube":"available","instagram":"taken","facebook":"available"},{"name":"OhBroCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"OhMyAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyAlgo","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyBot","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyByte","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"OhMyCloud","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyData","youtube":"available","instagram":"available","facebook":"available"},{"name":"OhMyDebug","youtube":"available","instagram":"available","facebook":"taken"},{"name":"OhMyDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyNeural","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"OhMyPixel","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyScript","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"OhMyStack","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyTech","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OhMyTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"OnlyAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OnlyBuildAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OnlyCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OnlyCoder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OnlyDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"OnlyTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"PeakAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"PixelAndCode","youtube":"available","instagram":"available","facebook":"available"},{"name":"PixelBro","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"PixelFord","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"PixelNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"PixelPort","youtube":"available","instagram":"available","facebook":"available"},{"name":"PixelToCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"PointBlankAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"PreciseAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"PrimeAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ProAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"PureAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"QuantFord","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"QuantNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"QuantumLeapAi","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"RapidAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"RawAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"RawThoughtAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"RealAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"RizzWithAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SchemaNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ScriptBro","youtube":"available","instagram":"available","facebook":"available"},{"name":"ScriptNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SharpAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SigmaAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SigmaCoder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SigmaDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SiliconNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SiliconPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SiliconSageIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimpliAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimpliBuild","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimpliCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimpliDev","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimpliTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimplyAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimplyBuildAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimplyBuilder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyCodeAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimplyCoder","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyCoding","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyIndiaAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimplyNeural","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyTech","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyTechie","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SimplyTheArchitect","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SimplyTheCode","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SlayTheCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SlayWithAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SmartAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SoftFord","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SoftNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SoftPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SoftPuram","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"StackAndCode","youtube":"available","instagram":"available","facebook":"available"},{"name":"StackBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"StackNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"StackPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SteadyAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SuperAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SwiftAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"SynthIntIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SynthNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"SynthPort","youtube":"available","instagram":"available","facebook":"available"},{"name":"TechAlchemyIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechBerg","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechBro","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechBroIndia","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechCortexIN","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechFord","youtube":"available","instagram":"available","facebook":"available"},{"name":"TechGuruAi","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechKarma","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechNeuron","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechPet","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechPort","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechPuram","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechSynapse","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechTantraAi","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TechVeda","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechieBro","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechieBroIndia","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechieBros","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TechieVibes","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"ThatCodeThough","youtube":"available","instagram":"available","facebook":"available"},{"name":"TheAICraftsman","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAIExplorer","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAIMakerLab","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAIThinker","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAITinkerer","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAiGrid","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAiLok","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAiMantra","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheAiVerse","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheBinaryMind","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheBroCoder","youtube":"available","instagram":"available","facebook":"available"},{"name":"TheBroDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheBuilderMind","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheCodeCurator","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheCodeRizz","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheCodedMind","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheCodingArchitect","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheCodingMind","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheCuriousCoder","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheDevAlchemist","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheDevLog","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheDevPractice","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheDevPrototype","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheFullStackMind","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheIndianTechie","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheNeuralDev","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ThePragmaticDev","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheStackArchitect","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheStackCrafter","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TheTechCrafter","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheTechEngineer","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheTechieGuru","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"TheTechieMaker","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"TinkerWithAI","youtube":"available","instagram":"available","facebook":"taken"},{"name":"TrueAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"UltimateAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"UnboxAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"UncutAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"UnfoldAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"UnlockAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"UnpluggedAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"VectorFord","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"VectorNagar","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"VibeAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"VibeCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"VibeCoding","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"WAi","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"WCode","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"WebNagar","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"WebPort","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"WideAngleAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"WiseAI","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"YantraMind","youtube":"taken","instagram":"taken","facebook":"taken"},{"name":"YoBroAI","youtube":"available","instagram":"taken","facebook":"taken"},{"name":"ZeroToOneAI","youtube":"taken","instagram":"taken","facebook":"taken"}];
+
+// ===== APP STATE =====
+var activeTab = 'any';
+var activeFilter = 'all';
+var savedSet = new Set();
+
+// Load saved names from localStorage
+try {
+    var saved = JSON.parse(localStorage.getItem('savedNames') || 'null');
+    if (Array.isArray(saved)) saved.forEach(function(n) { savedSet.add(n); });
+} catch(e) {}
+if (savedSet.size > 0) {
+    document.getElementById('saved-count').textContent = savedSet.size;
+}
+
+// ===== FUNCTIONS =====
+function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    var el = document.querySelector('[data-tab="' + tab + '"]');
+    if (el) el.classList.add('active');
+    renderTable();
+}
+
+function toggleSave(name) {
+    if (savedSet.has(name)) {
+        savedSet.delete(name);
+    } else {
+        savedSet.add(name);
+    }
+    localStorage.setItem('savedNames', JSON.stringify(Array.from(savedSet)));
+    document.getElementById('saved-count').textContent = savedSet.size;
+    renderTable();
+}
+
+function setFilter(f) {
+    activeFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    var el = document.querySelector('[data-filter="' + f + '"]');
+    if (el) el.classList.add('active');
+    renderTable();
+}
+
+document.getElementById('search').addEventListener('input', function() { renderTable(); });
+
+function renderTable() {
+    var search = document.getElementById('search').value.toLowerCase();
+    var filtered = ALL_DATA.slice();
+
+    // Tab filter
+    if (activeTab === 'allgone') {
+        filtered = filtered.filter(function(r) {
+            return r.youtube === 'taken' && r.instagram === 'taken' && r.facebook === 'taken' && !savedSet.has(r.name);
+        });
+    } else if (activeTab === 'saved') {
+        filtered = filtered.filter(function(r) { return savedSet.has(r.name); });
+    } else {
+        filtered = filtered.filter(function(r) {
+            var allChecked = r.youtube !== 'pending' && r.instagram !== 'pending' && r.facebook !== 'pending';
+            if (!allChecked) return true;
+            return !(r.youtube === 'taken' && r.instagram === 'taken' && r.facebook === 'taken') && !savedSet.has(r.name);
+        });
+    }
+
+    // Platform filter (not for saved tab)
+    if (activeTab !== 'saved') {
+        if (activeFilter === 'youtube') filtered = filtered.filter(function(r) { return r.youtube === 'available'; });
+        else if (activeFilter === 'instagram') filtered = filtered.filter(function(r) { return r.instagram === 'available'; });
+        else if (activeFilter === 'facebook') filtered = filtered.filter(function(r) { return r.facebook === 'available'; });
+    }
+
+    // Search
+    if (search) filtered = filtered.filter(function(r) { return r.name.toLowerCase().indexOf(search) !== -1; });
+
+    document.getElementById('row-count').textContent = filtered.length + ' results';
+
+    if (filtered.length === 0) {
+        document.getElementById('table-body').innerHTML = '<tr><td colspan="5" class="empty">No matching results</td></tr>';
+        return;
+    }
+
+    function cellHtml(s) {
+        if (s === 'available') return '<td class="cell cell-available">✓</td>';
+        if (s === 'taken') return '<td class="cell cell-taken">✗</td>';
+        return '<td class="cell cell-pending">⏳</td>';
+    }
+
+    var isSavedTab = activeTab === 'saved';
+
+    document.getElementById('table-body').innerHTML = filtered.map(function(r) {
+        var actionHtml = isSavedTab
+            ? '<td class="action-col"><button class="action-btn restore" data-name="' + r.name + '" title="Restore to main list">↩</button></td>'
+            : '<td class="action-col"><button class="action-btn" data-name="' + r.name + '" title="Dismiss to Saved tab">✕</button></td>';
+        return '<tr>' +
+            '<td class="name-cell">@' + r.name + '</td>' +
+            cellHtml(r.youtube) +
+            cellHtml(r.instagram) +
+            cellHtml(r.facebook) +
+            actionHtml +
+        '</tr>';
+    }).join('');
+}
+
+// Event delegation for action buttons
+document.getElementById('table-body').addEventListener('click', function(e) {
+    var btn = e.target.closest('.action-btn');
+    if (!btn) return;
+    var name = btn.getAttribute('data-name');
+    if (name) toggleSave(name);
+});
+
+// Initial render
+renderTable();
+</script>
+</body>
+</html>
